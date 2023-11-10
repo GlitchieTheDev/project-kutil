@@ -1,0 +1,30 @@
+{
+  "name": "kutil-image",
+  "productName": "KUtil Image",
+  "version": "1.0.0",
+  "description": "Safe and secure image utility app.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "electron test.js",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . kutil-image --overwrite --asar=true --platform=win32 --arch=ia32 --icon=src/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"KUtil Image\"",    
+    "package-linux": "electron-packager . kutil-image --overwrite --asar=true --platform=linux --arch=x64 --icon=src/icon-1024x1024.png --prune=true --out=release-builds"
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "KAS Utility Image",
+    "KUtil",
+    "KAS",
+    "Utility",
+    "Util",
+    "Image",
+    "KAS Utility"
+  ],
+  "author": "KAS",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^24.2.0",
+    "electron-packager": "^17.1.1"
+  }
+}

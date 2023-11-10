@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"> -->
+    <title>KUtil Text - </title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      * {
+        box-sizing: border-box; 	/* For IE 10+ */
+        margin: 0;
+        padding: 0;
+      }
+
+      #ctnt {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        resize: none;
+        overflow: scroll;
+        white-space: nowrap;
+        outline: none;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas name="ctnt" id="ctnt"></canvas>
+    <!-- You can also require other files to run in this process -->
+    <script>
+        const ctnt = document.getElementById('ctnt');
+  const { ipcRenderer, remote } = require('electron');
+  const ctx = ctnt.getContext('2d');
+  let initialValue;
+  let edited = false;
+  let content = [];
+  let vw = window.innerWidth /ctnt.width;
+  let vh = window.innerHeight /ctnt.height;
+  let rx = 0;
+  let ry = 0;
+  let mousedown = false;
+  ipcRenderer.on('open', (event, arg) => {
+    console.log(arg);
+    arg.contents.replace(/\n/g, "<br>")
+    ctnt.value = arg.contents;
+    initialValue = arg.contents;
+    content = JSON.parse(arg.contents);
+    render()
+    document.getElementsByTagName("title")[0].innerHTML = `KUtil Image - ${arg.file}`;
+  });
+
+  document.addEventListener("keypress", (e) => {
+    if (e.code === "KeyS" && e.ctrlKey) {
+      ipcRenderer.send('save', {contents:ctnt.value})
+    }
+  })
+
+requestAnimationFrame(()=>{
+  let value = ctnt.value;
+    if (value !== initialValue) edited = true; else edited = false;
+    ipcRenderer.send('content-update', {edited,content: ctnt.value});
+    console.log(edited)
+    //render();
+})
+
+function getImageData() {
+  content = [];
+  for (let x = 0; x < vw; x++) {
+    for (let y = 0; y < vh; y++) {
+      const data = getPixelColor(x,y);
+      content.push(data)
+      // console.log(data)
+      //ctx.fillStyle = "#13fe03";
+      //ctx.fillRect(x,y,1,1);
+      //console.log("x:",x,"y:",y)
+    }
+  }
+  console.log("DONE")
+  console.log(JSON.stringify(content))
+}
+
+function render() {
+  // ctx.clearRect(0, 0, vw, vh); // clear previous frame
+  ctx.fillStyle = "black"; // fill with black box to start with.
+  ctx.fillRect(0,0, vw, vh);
+  const img = document.createElement("img");
+  img.src="src/icon-1024x1024.png"
+  ctx.drawImage(img, 0,0,216,216);
+  // ctx.fillStyle = "white"; // fill with white box to start with.
+  // ctx.fillRect(rx,ry,100,100); // draw a rectangle.  rx and ry are the top left corner of the rectangle.
+}
+
+window.addEventListener("resize", ()=>{
+  vw = window.innerWidth;
+  vh = window.innerHeight;
+  render()
+})
+
+document.addEventListener("mousedown", (e) => {
+  //edited = true; // so that the user can start the edit.  This will stop the user from starting a new circle.  The circles will remain the
+  mousedown = true; // so that the user can start the edit.  This will stop the user from starting a new circle.  The circles will remain the
+})
+
+document.addEventListener("mousemove", (e) => {
+  if (mousedown) {
+  //   edited = true;
+  //   const msp = getMousePos(ctnt,e);
+  //   rx = msp.x;
+  //   ry = msp.y;
+  // console.log(rx,ry) // for testing.  It will print the top left corner of the rectangle.  It will also print the size of
+  // ctx.fillStyle = "green"; // fill with green box to start with.  It will draw a rectangle.  rx and ry are the top left corner of the
+  // ctx.fillRect(rx,ry,1,1); // the rectangle.  rx and ry are the top left corner of the rectangle.  100 and 100 are
+
+  edited = true;
+
+  }
+})
+
+document.addEventListener("mouseup", (e) => {
+  //edited = true; // so that the user can start the edit.  This will stop the user from starting a new circle.  The circles will remain the
+  mousedown = false; // so that the user can start the edit.  This will stop the user from starting a new circle.  The circles will remain the
+})
+
+function getPixelColor(x, y) {
+  const pixelData = ctx.getImageData(x, y, 1, 1).data;
+  const r = pixelData[0];
+  const g = pixelData[1];
+  const b = pixelData[2];
+  const a = pixelData[3];
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+function getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
+
+function lightenColor(color) {
+  const rgb = color.match(/\d+/g); // extract the RGB values as an array of strings
+  const lightenedRgb = rgb.map(val => Math.floor(val * 1.2)); // multiply each value by 1.2 and round down if necessary
+  return `rgb(${lightenedRgb.join(',')})`; // join the values and return a new string in the format "rgb(r,g,b)"
+}
+
+
+    </script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
