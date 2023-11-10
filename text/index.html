@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"> -->
+    <title>KUtil Text - </title>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      * {
+        box-sizing: border-box; 	/* For IE 10+ */
+        margin: 0;
+        padding: 0;
+      }
+
+      #ctnt {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        resize: none;
+        overflow: scroll;
+        white-space: nowrap;
+        outline: none;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <textarea name="ctnt" id="ctnt"></textarea>
+    <!-- You can also require other files to run in this process -->
+    <script>
+        const ctnt = document.getElementById('ctnt');
+  const { ipcRenderer, remote } = require('electron');
+  let initialValue;
+  let edited = false;
+  ipcRenderer.on('open', (event, arg) => {
+    console.log(arg);
+    arg.contents.replace(/\n/g, "<br>")
+    ctnt.value = arg.contents;
+    initialValue = arg.contents;
+    document.getElementsByTagName("title")[0].innerHTML = `KUtil Text - ${arg.file}`;
+  });
+
+  document.addEventListener("keypress", (e) => {
+    if (e.code === "KeyS" && e.ctrlKey) {
+      ipcRenderer.send('save', {contents:ctnt.value})
+    }
+  })
+
+  ctnt.addEventListener('input', (e) => {
+    let value = ctnt.value;
+    if (value !== initialValue) edited = true; else edited = false;
+    ipcRenderer.send('content-update', {edited,content: ctnt.value});
+    console.log(edited)
+  })
+
+    </script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

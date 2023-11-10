@@ -1,0 +1,30 @@
+{
+  "name": "kutil-text",
+  "productName": "KUtil Text",
+  "version": "1.0.0",
+  "description": "Safe and secure text utility app.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "electron test.js",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=src/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . kutil-text --overwrite --asar=true --platform=win32 --arch=ia32 --icon=src/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"KUtil Text\"",    
+    "package-linux": "electron-packager . kutil-text --overwrite --asar=true --platform=linux --arch=x64 --icon=src/icon-1024x1024.png --prune=true --out=release-builds"
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "KAS Utility Text",
+    "KUtil",
+    "KAS",
+    "Utility",
+    "Util",
+    "Text",
+    "KAS Utility"
+  ],
+  "author": "KAS",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^24.2.0",
+    "electron-packager": "^17.1.1"
+  }
+}
